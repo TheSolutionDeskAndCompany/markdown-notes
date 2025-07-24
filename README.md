@@ -15,41 +15,27 @@ A beautiful, feature-rich markdown note-taking application with live preview, bu
 - **Local Storage** - Notes are automatically saved in your browser
 - **Syntax Highlighting** - Code blocks with syntax highlighting
 
-## 🌐 Custom Domain Setup
+## 🌐 Deployment
 
-To use your custom domain `thesolutiondesk.ca/tools/free/markdown`:
-
-### 1. DNS Configuration
-
-Add these records in your domain's DNS settings:
-
-```dns
-# CNAME Record
-Name: tools.thesolutiondesk.ca
-Type: CNAME
-Value: thesolutiondeskandcompany.github.io
-TTL: Auto
-
-# TXT Record (for GitHub verification)
-Name: _github-pages-challenge-thesolutiondesk
-Type: TXT
-Value: "<GitHub will provide this>"
-TTL: Auto
-```
-
-### 2. GitHub Pages Settings
-
-1. Go to your repository → Settings → Pages
-2. Under "Custom domain", enter: `thesolutiondesk.ca/tools/free/markdown`
-3. Check "Enforce HTTPS" when available
-
-### 3. Verification
-
-After DNS propagation (up to 48 hours), your app will be available at:
+Your app is deployed to GitHub Pages at:
 
 ```
-https://thesolutiondesk.ca/tools/free/markdown
+https://thesolutiondeskandcompany.github.io/markdown-notes/
 ```
+
+### Setting Up a Custom Domain (Optional)
+
+If you want to use a custom domain like `markdown.thesolutiondesk.ca`:
+
+1. **Update DNS Settings**:
+   - Go to your domain registrar
+   - Add a CNAME record pointing to `thesolutiondeskandcompany.github.io`
+
+2. **Configure GitHub Pages**:
+   - Go to your repository → Settings → Pages
+   - Under "Custom domain", enter your domain (e.g., `markdown.thesolutiondesk.ca`)
+   - Click "Save"
+   - Once verified, check "Enforce HTTPS"
 
 ## 🚀 Getting Started
 

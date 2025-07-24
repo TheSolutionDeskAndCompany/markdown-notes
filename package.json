@@ -2,7 +2,7 @@
   "name": "markdown-notes",
   "private": true,
   "version": "0.1.0",
-  "homepage": "https://thesolutiondesk.ca/tools/free/markdown",
+  "homepage": "https://thesolutiondeskandcompany.github.io/markdown-notes",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,6 +23,7 @@
     "tailwindcss": "^3.4.1"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.16",
     "@types/react": "^18.2.56",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
