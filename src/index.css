@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+  --editor-bg: #ffffff;
+  --preview-bg: #f8fafc;
+  --border-color: #e2e8f0;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+}
+
+.dark {
+  --editor-bg: #1e293b;
+  --preview-bg: #0f172a;
+  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+}
+
+body {
+  @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full hover:bg-gray-400 dark:hover:bg-gray-500;
+}
+
+/* Markdown styles */
+.markdown {
+  @apply prose dark:prose-invert max-w-none p-4 overflow-y-auto h-full;
+}
+
+.markdown h1 {
+  @apply text-3xl font-bold mb-4 border-b pb-2 border-gray-200 dark:border-gray-700;
+}
+
+.markdown h2 {
+  @apply text-2xl font-semibold mt-6 mb-3 border-b pb-2 border-gray-200 dark:border-gray-700;
+}
+
+.markdown h3 {
+  @apply text-xl font-semibold mt-5 mb-2;
+}
+
+.markdown p {
+  @apply my-4 leading-relaxed;
+}
+
+.markdown a {
+  @apply text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 underline;
+}
+
+.markdown pre {
+  @apply bg-gray-800 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto my-4;
+}
+
+.markdown code {
+  @apply font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded;
+}
+
+.markdown pre code {
+  @apply bg-transparent p-0;
+}
+
+.markdown blockquote {
+  @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-300 my-4;
+}
+
+.markdown ul, .markdown ol {
+  @apply my-4 pl-6;
+}
+
+.markdown ul {
+  @apply list-disc;
+}
+
+.markdown ol {
+  @apply list-decimal;
+}
+
+.markdown li {
+  @apply my-1;
+}
+
+.markdown table {
+  @apply min-w-full divide-y divide-gray-200 dark:divide-gray-700 my-4;
+}
+
+.markdown th {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider;
+}
+
+.markdown td {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100;
+}
+
+.markdown tr {
+  @apply border-b border-gray-200 dark:border-gray-700;
+}
