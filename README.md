@@ -1,8 +1,20 @@
-# Markdown Notes
+# 📝 Markdown Notes
 
 A beautiful, feature-rich markdown note-taking application with live preview, built with React and Tailwind CSS.
 
-![Markdown Notes Screenshot](https://via.placeholder.com/1200x800/1e293b/ffffff?text=Markdown+Notes+Screenshot)
+## 🚀 Live Demo
+
+Try it out: [https://thesolutiondeskandcompany.github.io/markdown-notes/](https://thesolutiondeskandcompany.github.io/markdown-notes/)
+
+```text
+📝 Markdown Editor (Left) | 👁️ Live Preview (Right)
+----------------------------------------------
+| # Welcome!           | # Welcome!           |
+| Start writing...     | Start writing...     |
+| - Lists              | • Lists              |
+| `code`               | code (syntax)        |
+| **bold**             | **bold**             |
+```
 
 ## ✨ Features
 
@@ -17,25 +29,30 @@ A beautiful, feature-rich markdown note-taking application with live preview, bu
 
 ## 🌐 Deployment
 
-Your app is deployed to GitHub Pages at:
+### Using GitHub Pages
 
-```
-https://thesolutiondeskandcompany.github.io/markdown-notes/
-```
+The app is automatically deployed to GitHub Pages at:
+[thesolutiondeskandcompany.github.io/markdown-notes](https://thesolutiondeskandcompany.github.io/markdown-notes/)
 
-### Setting Up a Custom Domain (Optional)
+### Custom Domain Setup
 
-If you want to use a custom domain like `markdown.thesolutiondesk.ca`:
+To use a custom domain (e.g., `markdown.thesolutiondesk.ca`):
 
-1. **Update DNS Settings**:
-   - Go to your domain registrar
-   - Add a CNAME record pointing to `thesolutiondeskandcompany.github.io`
+1. **Add a CNAME record** in your domain's DNS settings:
+   ```text
+   Type:    CNAME
+   Name:    markdown
+   Value:   thesolutiondeskandcompany.github.io
+   TTL:     Auto
+   ```
 
 2. **Configure GitHub Pages**:
    - Go to your repository → Settings → Pages
-   - Under "Custom domain", enter your domain (e.g., `markdown.thesolutiondesk.ca`)
-   - Click "Save"
-   - Once verified, check "Enforce HTTPS"
+   - Under "Custom domain", enter your domain
+   - Save and wait for DNS verification
+   - Once verified, enable "Enforce HTTPS"
+
+> Note: DNS changes may take up to 24 hours to propagate globally.
 
 ## 🚀 Getting Started
 
