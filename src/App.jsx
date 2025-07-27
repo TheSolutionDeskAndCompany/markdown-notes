@@ -1,83 +1,122 @@
-import { useState, useEffect } from 'react';
-import { FiSun, FiMoon, FiSave, FiPlus, FiTrash2, FiEdit2, FiX, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { v4 as uuidv4 } from 'uuid';
+import { useState, useEffect, useCallback } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { NoteProvider } from './context/NoteContext';
+import { ThemeProvider } from './context/ThemeContext';
+import Header from './components/Header/Header';
+import NoteList from './components/NoteList/NoteList';
+import NoteEditor from './components/NoteEditor/NoteEditor';
+import MarkdownPreview from './components/MarkdownPreview/MarkdownPreview';
+import Footer from './components/Footer/Footer';
+import './App.css';
 
-// First-time user welcome content
-const WELCOME_NOTE = {
-  id: 'welcome-note',
-  title: 'Welcome to Markdown Notes',
-  content: `# 👋 Welcome to Markdown Notes!
-
-This is a simple, beautiful markdown note-taking app that works offline.
-
-## Quick Start Guide
-
-1. **Create a new note** using the button in the top-right or press \`Ctrl+N\`
-2. **Write markdown** in the left panel
-3. **See the preview** update in real-time on the right
-4. **Your notes are automatically saved** in your browser
-
-## Markdown Cheat Sheet
-
-### Text Formatting
-- **Bold**: \`**bold**\`
-- *Italic*: \`*italic*\`
-- ~~Strikethrough~~: \`~~strikethrough~~\`
-
-### Headers
-\`\`\`
-# H1
-## H2
-### H3
-\`\`\`
-
-### Lists
-- Unordered item
-- Another item
-
-1. Ordered item
-2. Another item
-
-### Links & Images
-[Link](https://example.com)
-
-![Image](https://via.placeholder.com/150)
-
-### Code
-\`\`\`javascript
-function hello() {
-  console.log('Hello, world!');
+// Error boundary fallback component
+function ErrorFallback({ error, resetErrorBoundary }) {
+  return (
+    <div role="alert" className="p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 rounded-md max-w-2xl mx-auto my-8">
+      <div className="flex">
+        <div className="flex-shrink-0">
+          <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <div className="ml-3">
+          <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+            Something went wrong
+          </h3>
+          <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+            <p>{error.message}</p>
+          </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:text-red-100 dark:bg-red-900/50 dark:hover:bg-red-800/50"
+              onClick={resetErrorBoundary}
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
-\`\`\`
 
-## Need Help?
+// Main App component
+function AppContent() {
+  const { activeNote, isFullscreen, toggleFullscreen } = useTheme();
+  const { isLoading, error } = useNotes();
 
-- Click the "Keyboard Shortcuts" link in the footer
-- Press \`F1\` anytime to see this guide again
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Toggle fullscreen: F11
+      if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
 
-Happy note-taking! 🎉`,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleFullscreen]);
 
-// Default note content
-const DEFAULT_NOTE = {
-  id: uuidv4(),
-  title: 'Untitled Note',
-  content: '# Welcome to Markdown Notes\n\nStart writing your markdown here...\n\n## Features\n- Live preview\n- Multiple notes\n- Dark mode\n- Keyboard shortcuts\n\n```javascript\n// Example code block\nfunction helloWorld() {\n  console.log("Hello, world!");\n}\n```',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
+  if (error) {
+    return (
+      <div className="p-4 text-red-600 dark:text-red-400">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <Header />
+      
+      <div className="flex flex-1 overflow-hidden">
+        <NoteList />
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {activeNote ? (
+            <div className="flex-1 flex overflow-hidden">
+              <NoteEditor />
+              <MarkdownPreview />
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400">
+              <p>No note selected</p>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <Footer />
+      
+      {/* Fullscreen toggle button (positioned absolutely) */}
+      <button
+        onClick={toggleFullscreen}
+        className="fixed bottom-4 right-4 p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-50"
+        aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+      >
+        {isFullscreen ? (
+          <FiMinimize2 className="w-5 h-5" />
+        ) : (
+          <FiMaximize2 className="w-5 h-5" />
+        )}
+      </button>
+    </div>
+  );
+}
+
+// Main App component with providers
 function App() {
-  const [notes, setNotes] = useState([]);
-  const [activeNoteId, setActiveNoteId] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   
   // Load notes and theme from localStorage on initial render
   useEffect(() => {
@@ -113,6 +152,26 @@ function App() {
     localStorage.setItem('markdown-notes', JSON.stringify(notesToSave));
   };
   
+  // Theme management
+  const themes = [
+    { id: 'blue', name: 'Ocean', color: 'bg-blue-600' },
+    { id: 'purple', name: 'Purple Haze', color: 'bg-purple-600' },
+    { id: 'emerald', name: 'Emerald', color: 'bg-emerald-600' },
+    { id: 'rose', name: 'Rose', color: 'bg-rose-500' },
+  ];
+
+  // Toggle theme dropdown
+  const toggleThemeDropdown = () => {
+    setShowThemeDropdown(!showThemeDropdown);
+  };
+
+  // Change theme
+  const changeTheme = (themeId) => {
+    setCurrentTheme(themeId);
+    setShowThemeDropdown(false);
+    localStorage.setItem('markdown-notes-color-theme', themeId);
+  };
+
   // Toggle dark mode
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
@@ -124,6 +183,22 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   };
+
+  // Load saved theme
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('markdown-notes-color-theme');
+    if (savedTheme) {
+      setCurrentTheme(savedTheme);
+    }
+  }, []);
+
+  // Get current theme
+  const getTheme = () => {
+    return themes.find(t => t.id === currentTheme) || themes[0];
+  };
+  
+  // Get current theme color
+  const theme = getTheme();
   
   // Get active note
   const activeNote = notes.find(note => note.id === activeNoteId) || notes[0];
@@ -222,7 +297,7 @@ function App() {
   };
   
   // Toggle fullscreen mode
-  const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(err => {
         console.error(`Error attempting to enable fullscreen: ${err.message}`);
@@ -234,11 +309,47 @@ function App() {
         setIsFullscreen(false);
       }
     }
-  };
-  
+  }, []);
+
+  // Handle fullscreen change
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Toggle fullscreen with F11
+      if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+      
+      // Toggle sidebar with Ctrl+B or Cmd+B
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        setIsSidebarOpen(prev => !prev);
+      }
+      
+      // Toggle preview with Ctrl+P or Cmd+P
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        setIsPreviewMode(prev => !prev);
+      }
+      
+      // Toggle editor with Ctrl+E or Cmd+E
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        setIsEditorMode(prev => !prev);
+      }
+      
       // Show help: F1
       if (e.key === 'F1') {
         e.preventDefault();
@@ -367,242 +478,122 @@ function App() {
   };
   
   return (
-    <div className={`flex flex-col h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200`}>
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Markdown Notes</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={createNewNote}
-                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-              >
-                <FiPlus className="mr-2 h-4 w-4" />
-                New Note
-              </button>
-              <button
-                onClick={toggleDarkMode}
-                className="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                aria-label="Toggle dark mode"
-              >
-                {isDarkMode ? <FiSun className="h-5 w-5" /> : <FiMoon className="h-5 w-5" />}
-              </button>
-              <button
-                onClick={toggleFullscreen}
-                className="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                aria-label="Toggle fullscreen"
-              >
-                {isFullscreen ? <FiMinimize2 className="h-5 w-5" /> : <FiMaximize2 className="h-5 w-5" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-      
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search notes..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {filteredNotes.length > 0 ? (
-              <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredNotes.map((note) => (
-                  <li key={note.id}>
-                    <button
-                      className={`w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${activeNoteId === note.id ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
-                      onClick={() => setActiveNoteId(note.id)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {note.title}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            {formatDate(note.updatedAt)}
-                          </p>
-                        </div>
-                        <button
-                          onClick={(e) => deleteNote(note.id, e)}
-                          className="ml-2 p-1 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                          aria-label="Delete note"
-                        >
-                          <FiTrash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-                {searchQuery ? 'No matching notes found' : 'No notes yet'}
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Main content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {activeNote && (
-            <>
-              {/* Note header */}
-              <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    {isEditingTitle ? (
-                      <div className="flex items-center">
-                        <input
-                          type="text"
-                          className="text-xl font-semibold bg-transparent border-b border-blue-500 focus:outline-none focus:ring-0 w-full text-gray-900 dark:text-white"
-                          value={activeNote.title}
-                          onChange={(e) => {
-                            const updatedNotes = notes.map(note => {
-                              if (note.id === activeNoteId) {
-                                return { ...note, title: e.target.value };
-                              }
-                              return note;
-                            });
-                            setNotes(updatedNotes);
-                          }}
-                          onBlur={() => updateNoteTitle(activeNote.title)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              updateNoteTitle(activeNote.title);
-                            } else if (e.key === 'Escape') {
-                              setIsEditingTitle(false);
-                            }
-                          }}
-                          autoFocus
-                        />
-                        <button
-                          onClick={() => setIsEditingTitle(false)}
-                          className="ml-2 p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                        >
-                          <FiX className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center group">
-                        <h2 
-                          className="text-xl font-semibold text-gray-900 dark:text-white cursor-text"
-                          onClick={() => setIsEditingTitle(true)}
-                        >
-                          {activeNote.title}
-                        </h2>
-                        <button
-                          onClick={() => setIsEditingTitle(true)}
-                          className="ml-2 p-1 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
-                          aria-label="Edit title"
-                        >
-                          <FiEdit2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    )}
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      Last updated: {formatDate(activeNote.updatedAt)}
-                    </p>
-                  </div>
-                  <div className="ml-4 flex items-center">
-                    <button
-                      onClick={() => {
-                        // Export as Markdown
-                        const blob = new Blob([activeNote.content], { type: 'text/markdown' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${activeNote.title.replace(/\s+/g, '_').toLowerCase()}.md`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                      }}
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                      title="Export as Markdown"
-                    >
-                      <FiSave className="mr-2 h-4 w-4" />
-                      Export
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Editor and Preview */}
-              <div className="flex-1 flex overflow-hidden">
-                {/* Editor */}
-                <div className="flex-1 flex flex-col border-r border-gray-200 dark:border-gray-700">
-                  <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">EDITOR</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {activeNote.content.length} characters • {activeNote.content.split(/\s+/).filter(Boolean).length} words
-                    </span>
-                  </div>
-                  <div className="flex-1 overflow-auto">
-                    <textarea
-                      className="w-full h-full p-4 font-mono text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none resize-none"
-                      value={activeNote.content}
-                      onChange={(e) => handleNoteChange(e.target.value)}
-                      placeholder="Start writing your markdown here..."
-                      spellCheck="false"
-                    />
-                  </div>
-                </div>
-                
-                {/* Preview */}
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">PREVIEW</span>
-                  </div>
-                  <div className="flex-1 overflow-auto p-4 markdown">
-                    {renderMarkdown()}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-      
-      {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-2 px-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {notes.length} note{notes.length !== 1 ? 's' : ''} • {new Date().getFullYear()} Markdown Notes
-          </p>
-          <div className="flex items-center space-x-2">
-            <a
-              href="#"
-              className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                // Show keyboard shortcuts modal
-                alert('Keyboard Shortcuts:\n\n' +
-                  '• Ctrl+N: New Note\n' +
-                  '• Ctrl+S: Save (auto-saves)\n' +
-                  '• Ctrl+D: Toggle Dark Mode\n' +
-                  '• F11: Toggle Fullscreen');
-              }}
-            >
-              Keyboard Shortcuts
-            </a>
-          </div>
-        </div>
-      </footer>
-    </div>
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onReset={() => window.location.reload()}
+    >
+      <ThemeProvider>
+        <NoteProvider>
+          <AppContent />
+        </NoteProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
-export default App;
+// Export the App component as default
+export default function AppWrapper() {
+  return (
+    <ErrorBoundary 
+      FallbackComponent={ErrorFallback}
+      onReset={() => window.location.reload()}
+    >
+      <ThemeProvider>
+        <NoteProvider>
+          <App />
+        </NoteProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
+}
+
+// Main App component with all the UI logic
+function App() {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isPreviewMode, setIsPreviewMode] = useState(true);
+  const [isEditorMode, setIsEditorMode] = useState(true);
+
+  // Toggle fullscreen mode
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    }
+  }, []);
+
+  // Handle fullscreen change
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Toggle fullscreen with F11
+      if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+      
+      // Toggle sidebar with Ctrl+B or Cmd+B
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        setIsSidebarOpen(prev => !prev);
+      }
+      
+      // Toggle preview with Ctrl+P or Cmd+P
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        setIsPreviewMode(prev => !prev);
+      }
+      
+      // Toggle editor with Ctrl+E or Cmd+E
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        setIsEditorMode(prev => !prev);
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [toggleFullscreen]);
+
+  return (
+    <div className={`flex flex-col min-h-screen bg-white dark:bg-gray-900 ${isFullscreen ? 'fixed inset-0' : ''}`}>
+      <Header />
+      <main className="flex-1 flex overflow-hidden">
+        {isSidebarOpen && <NoteList />}
+        <div className="flex-1 flex overflow-hidden">
+          {isEditorMode && (
+            <div className={isPreviewMode ? 'w-1/2' : 'w-full'}>
+              <NoteEditor />
+            </div>
+          )}
+          {isPreviewMode && (
+            <div className={isEditorMode ? 'w-1/2' : 'w-full'}>
+              <MarkdownPreview />
+            </div>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
