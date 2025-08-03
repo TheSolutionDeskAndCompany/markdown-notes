@@ -1,6 +1,7 @@
 # 📝 Markdown Notes
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://thesolutiondeskandcompany.github.io/markdown-notes/)
+[![CI/CD](https://github.com/thesolutiondeskandcompany/markdown-notes/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/thesolutiondeskandcompany/markdown-notes/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![GitHub issues](https://img.shields.io/github/issues/thesolutiondeskandcompany/markdown-notes)](https://github.com/thesolutiondeskandcompany/markdown-notes/issues)
@@ -110,25 +111,16 @@ function greetUser(name) {
 The app is automatically deployed to GitHub Pages at:
 [thesolutiondeskandcompany.github.io/markdown-notes](https://thesolutiondeskandcompany.github.io/markdown-notes/)
 
-### Custom Domain Setup
+### GitHub Pages Setup
 
-To use a custom domain (e.g., `markdown.thesolutiondesk.ca`):
+The site is automatically deployed to GitHub Pages at:
+`https://thesolutiondeskandcompany.github.io/markdown-notes/`
 
-1. **Add a CNAME record** in your domain's DNS settings:
-   ```text
-   Type:    CNAME
-   Name:    markdown
-   Value:   thesolutiondeskandcompany.github.io
-   TTL:     Auto
-   ```
-
-2. **Configure GitHub Pages**:
-   - Go to your repository → Settings → Pages
-   - Under "Custom domain", enter your domain
-   - Save and wait for DNS verification
-   - Once verified, enable "Enforce HTTPS"
-
-> Note: DNS changes may take up to 24 hours to propagate globally.
+To set up GitHub Pages:
+1. Go to your repository → Settings → Pages
+2. Set source to "Deploy from a branch"
+3. Select branch: `gh-pages` (created automatically by the workflow)
+4. Your site will be available within a few minutes
 
 ## 🚀 Getting Started
 
