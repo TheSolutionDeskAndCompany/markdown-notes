@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiPalette, FiChevronDown, FiSun, FiMoon } from 'react-icons/fi';
+import { FiSettings, FiChevronDown, FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '../../context/ThemeContext';
 
 export default function ThemeSwitcher() {
@@ -17,7 +17,7 @@ export default function ThemeSwitcher() {
           aria-expanded={showDropdown}
           aria-haspopup="true"
         >
-          <FiPalette className="w-5 h-5" aria-hidden="true" />
+          <FiSettings className="w-5 h-5" aria-hidden="true" />
           <FiChevronDown className="w-4 h-4" aria-hidden="true" />
         </button>
         
