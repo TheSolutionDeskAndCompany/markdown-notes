@@ -44,45 +44,62 @@ npm run dev
 
 ---
 
-## 📚 Usage Examples
+## 📚 What You Can Do
 
+**📝 Multiple Notes Management**
+```
+• Create unlimited notes with custom titles
+• Auto-save as you type (300ms debounce)
+• Switch between notes instantly
+• Delete notes you no longer need
+```
+
+**⚡ Live Markdown Preview**
 ```markdown
-# Heading 1
+# Meeting Notes - Project Alpha
 
-**Bold text** and *italic text*
+## Action Items
+- [x] Review design mockups
+- [ ] Schedule client call
+- [ ] Update project timeline
 
-- Bullet points
-- [ ] Todo item
-- [x] Done item
-
-[Links](https://example.com)
-`inline code`
-```
-
+## Code Snippets
 ```javascript
-// Code block with syntax highlighting
-function greetUser(name) {
-  return `Hello, ${name}!`;
-}
+const handleSubmit = async (data) => {
+  const response = await api.post('/notes', data);
+  return response.data;
+};
 ```
+
+**🎨 Rich Formatting Support**
+- **Bold**, *italic*, ~~strikethrough~~ text
+- Tables with proper styling
+- Blockquotes with custom borders
+- External links (open in new tabs)
+- Syntax-highlighted code blocks
 
 ---
 
 ## 🎨 Advanced Features
 
-* Word & character count
-* Fullscreen mode
-* Customizable note titles
-* Search notes
+* **Real-time word & character count** (shown in editor footer)
+* **Search notes** with live filtering (Ctrl+K to focus)
+* **Customizable note titles** (click to edit inline)
+* **Auto-save with debounce** (300ms delay)
+* **Sidebar toggle** for distraction-free writing
+* **Split-view controls** (toggle editor/preview panels)
 
 ---
 
 ## ⌨️ Keyboard Shortcuts
 
 * `Ctrl+N` — New note
-* `Ctrl+S` — Save note
+* `Ctrl+S` — Save note (auto-saves anyway)
 * `Ctrl+D` — Toggle dark/light mode
-* `F11` — Fullscreen
+* `Ctrl+B` — Toggle sidebar
+* `Ctrl+P` — Toggle preview
+* `Ctrl+E` — Toggle editor
+* `Ctrl+K` — Search notes
 
 ---
 
