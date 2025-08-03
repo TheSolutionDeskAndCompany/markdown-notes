@@ -12,6 +12,17 @@
 
 👉 [Try it now!](https://thesolutiondeskandcompany.github.io/markdown-notes/)
 
+## 📸 Screenshots
+
+### Light Mode
+![Markdown Notes - Light Mode](.github/screenshots/light-mode.png)
+
+### Dark Mode
+![Markdown Notes - Dark Mode](.github/screenshots/dark-mode.png)
+
+### Mobile Responsive
+![Markdown Notes - Mobile](.github/screenshots/mobile.png)
+
 ---
 
 ## ⚡ Quick Start
